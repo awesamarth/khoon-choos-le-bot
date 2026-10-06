@@ -1,0 +1,12 @@
+{
+  "name": "khoon-choos-le-bot",
+  "main": "worker/index.js",
+  "account_id": "433c81d87bcae18a9952a81d7d7d900a",
+  "compatibility_date": "2026-10-06",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "keep_vars": true,
+  "limits": { "cpu_ms": 10 },
+  "triggers": { "crons": ["0 5 * * 1"] },
+  "vars": { "POSTING_ENABLED": "false" }
+}
