@@ -8,5 +8,5 @@
   "keep_vars": true,
   "limits": { "cpu_ms": 10 },
   "triggers": { "crons": ["0 5 * * 1"] },
-  "vars": { "POSTING_ENABLED": "false" }
+  "vars": { "POSTING_ENABLED": "true" }
 }

@@ -11,27 +11,27 @@ X v2 posting attempt with the original `text` payload. It has a harmless GET
 health route at `/`; no HTTP posting route exists. Automatic cron retries are
 disabled to avoid duplicate posting after an ambiguous API response.
 
-Infrastructure is deployed, but `POSTING_ENABLED` is `false`: **posting is not
-active**. The first gated deployment had no X secrets; the user is restoring
-credentials separately. Deploy with `--keep-vars` to preserve dashboard-managed
-variables; `keep_vars` is also enabled in the configuration. The previous Worker stored X
-credentials as ordinary variables; deployment replaced those bindings and its
-Tuesday schedule. Wrangler unexpectedly exposed their values in a deployment
-preview. Do not reuse those values from logs. Credential rotation and secure
-installation require user approval; never commit credentials.
+Infrastructure is deployed with `POSTING_ENABLED=true`, as explicitly approved
+by the user. It will attempt the original video post on Monday; it needs valid
+OAuth 1.0 credentials with write permission for the intended bot account.
+The user's existing account entitlement and exact native-video billing remain
+unverified; activation was approved despite that uncertainty. No immediate
+extra live tweet is sent during deployment or verification.
 
-With approved secure setup, configure these four Worker secrets through the
-Cloudflare dashboard: `API_KEY`, `API_KEY_SECRET`, `ACCESS_TOKEN`,
-`ACCESS_TOKEN_SECRET`. Confirm the user token belongs to the intended bot account
-and has write permission. Only then, after confirming zero-cost entitlement for
-this operation, set `POSTING_ENABLED` to `true` and deploy. No immediate live test
-post is required. Do not reactivate the stale Railway cron alongside this Worker.
+Deploy with `--keep-vars` to preserve dashboard-managed variables; `keep_vars`
+is also enabled in the configuration. Credentials must never be committed.
+The user can install the four OAuth 1.0 secrets locally with hidden prompts:
 
-Current X documentation lists generic pay-per-use pricing, including $0.20 per
-URL post. That does not establish how X bills this native `/video/1` link or the
-existing app's entitlement. The user reports previously free operation. Do not
-purchase credits, attach billing, or enable posting under a zero-cost requirement
-without confirming this exact operation is free for the existing app.
+```sh
+python3 scripts/setup-x-secrets.py
+```
+
+Run this yourself in an interactive Terminal. It prompts for `API_KEY`,
+`API_KEY_SECRET`, `ACCESS_TOKEN`, and `ACCESS_TOKEN_SECRET`, passing each directly
+through stdin to Wrangler. It never prints credential values or saves them in
+project files. Do not paste credentials into chat or command arguments.
+No `SECRET_KEY` is needed: the public HTTP handler cannot trigger posting.
+Do not reactivate the stale Railway cron alongside this native scheduler.
 
 ## Verification
 
@@ -42,5 +42,5 @@ redirect CLI output and inspect only sanitized deployment metadata.
 
 The legacy `pnpm start` server and its `/tweet` endpoint remain in `bot.js` for
 reference; Cloudflare does not execute them. The pnpm override patches qs to
-6.16.0 in that legacy dependency tree. Non-qs advisories remain in Express's
-transitive dependencies; the deployed Worker imports only twitter-api-v2.
+6.16.0 in that legacy dependency tree. The compatible Express update and proxy-addr override resolve the remaining
+reported advisories; the deployed Worker imports only twitter-api-v2.
