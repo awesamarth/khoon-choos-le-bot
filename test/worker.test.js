@@ -18,12 +18,10 @@ test('API errors are sanitized and never retried', async () => {
   await assert.rejects(scheduledPost(env, () => ({ v2: { async tweet() { calls++; throw new Error('secret-bearing mock error'); } } })), error => error.message === 'X posting failed. Check credentials, write permission and entitlement.');
   assert.equal(calls, 1);
 });
-test('health route is harmless and tweet route rejects missing or invalid secrets', async () => {
-  const response = await worker.fetch(new Request('https://example.test/'), {});
+test('health route is harmless and no HTTP posting route exists', async () => {
+  const response = worker.fetch(new Request('https://example.test/'), {});
   assert.equal((await response.json()).postingEnabled, false);
-  assert.equal((await worker.fetch(new Request('https://example.test/tweet?secret=mock'), env)).status, 403);
-  assert.equal((await worker.fetch(new Request('https://example.test/tweet?secret=wrong'), { ...env, SECRET_KEY: 'mock-secret' })).status, 403);
-  assert.equal((await worker.fetch(new Request('https://example.test/tweet?secret=mock-secret'), { SECRET_KEY: 'mock-secret', POSTING_ENABLED: 'false' })).status, 503);
+  assert.equal(worker.fetch(new Request('https://example.test/tweet?secret=mock'), env).status, 404);
 });
 test('scheduled handler disables automatic retry and respects posting gate', async () => {
   let calls = 0;
