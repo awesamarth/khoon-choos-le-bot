@@ -8,7 +8,9 @@ The Cloudflare Worker posts the original fixed native X video link:
 `wrangler.jsonc` configures Mondays at 05:00 UTC / 10:30 Asia/Kolkata,
 with a 10 ms CPU limit suitable for Workers Free. The Worker performs a single
 X v2 posting attempt with the original `text` payload. It has a harmless GET
-health route at `/`; no HTTP posting route exists. Automatic cron retries are
+health route at `/` and preserves GET `/tweet?secret=...`, protected by the
+`SECRET_KEY` binding. Missing or invalid secrets return 403; the posting gate
+also applies to this route. Automatic cron retries are
 disabled to avoid duplicate posting after an ambiguous API response.
 
 Infrastructure is deployed, but `POSTING_ENABLED` is `false`: **posting is not
@@ -22,7 +24,7 @@ installation require user approval; never commit credentials.
 
 With approved secure setup, configure these four Worker secrets through the
 Cloudflare dashboard: `API_KEY`, `API_KEY_SECRET`, `ACCESS_TOKEN`,
-`ACCESS_TOKEN_SECRET`. Confirm the user token belongs to the intended bot account
+`ACCESS_TOKEN_SECRET`; retain `SECRET_KEY` for the HTTP endpoint. Confirm the user token belongs to the intended bot account
 and has write permission. Only then, after confirming zero-cost entitlement for
 this operation, set `POSTING_ENABLED` to `true` and deploy. No immediate live test
 post is required. Do not reactivate the stale Railway cron alongside this Worker.
